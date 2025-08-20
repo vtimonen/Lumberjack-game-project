@@ -17,10 +17,11 @@ function house:enter()
 
     -- Ladataan pelaaja worldiin (sama pelaaja kuin townissa)
     self.player = player
-    self.player:load(self.world, 0, 0) -- Esimerkki spawn-piste houseen
+    self.player:load(self.world, 400, 67) -- Esimerkki spawn-piste houseen
 
     -- Kamera
     self.gameCamera = humpCamera(self.player.x, self.player.y)
+    self.gameCamera.scale = 4 -- nelinkertainen skaalaus
 
     -- Mapin seinät collidereiksi
     self.walls = {}
@@ -44,19 +45,29 @@ function house:update(dt)
     -- Päivitetään physics world
     self.world:update(dt)
 
-    -- Kamera seuraa pelaajaa
+    -- Haetaan ruudun leveys ja korkeus pikseleinä
     local w = love.graphics.getWidth()
     local h = love.graphics.getHeight()
+
+    -- Kartan koko pikseleinä (tilejen määrä * tilejen koko)
     local mapW = self.gameMap.width * self.gameMap.tilewidth
     local mapH = self.gameMap.height * self.gameMap.tileheight
 
-    self.gameCamera:lookAt(self.player.x, self.player.y)
+    -- Zoom-kerroin, eli kuinka paljon kameraa on skaalattu
+    local camScale = 4
 
-    -- Kamera ei mene kartan ulkopuolelle
-    if self.gameCamera.x < w / 2 then self.gameCamera.x = w / 2 end
-    if self.gameCamera.y < h / 2 then self.gameCamera.y = h / 2 end
-    if self.gameCamera.x > (mapW - w / 2) then self.gameCamera.x = (mapW - w / 2) end
-    if self.gameCamera.y > (mapH - h / 2) then self.gameCamera.y = (mapH - h / 2) end
+    -- Lasketaan kuinka paljon näytettävä alue kattaa karttaa kameran mittakaavassa
+    local halfW = (w / camScale) / 2
+    local halfH = (h / camScale) / 2
+
+    -- Nyt rajoitetaan kamera niin, ettei se mene kartan ulkopuolelle:
+    -- math.max(halfW, ...) varmistaa, ettei kamera mene vasemman yläreunan yli
+    -- math.min(..., mapW - halfW) varmistaa, ettei kamera mene oikean alareunan yli
+    -- Sama logiikka y-koordinaatille
+    local camX = math.max(halfW, math.min(self.player.x, mapW - halfW))
+    local camY = math.max(halfH, math.min(self.player.y, mapH - halfH))
+
+    self.gameCamera:lookAt(camX, camY)
 
     -- Esimerkki: paluu town-statiin, jos pelaaja menee ovesta ulos
     if self.player.x > mapW - 50 then
@@ -74,16 +85,16 @@ function house:draw()
 
     -- Piirretään taustakerrokset
     if self.gameMap.layers["Background"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Background"])
+        self.gameMap:drawLayer(self.gameMap.layers["Background"], 0, 0, 10, 10)
     end
     if self.gameMap.layers["Matto"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Matto"])
+        self.gameMap:drawLayer(self.gameMap.layers["Matto"], 0, 0, 10, 10)
     end
     if self.gameMap.layers["Jotain"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Jotain"])
+        self.gameMap:drawLayer(self.gameMap.layers["Jotain"], 0, 0, 10, 10)
     end
     if self.gameMap.layers["Decorations"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Decorations"])
+        self.gameMap:drawLayer(self.gameMap.layers["Decorations"], 0, 0, 10, 10)
     end
 
     -- Piirretään pelaaja

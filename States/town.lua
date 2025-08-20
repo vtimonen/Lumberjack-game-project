@@ -82,22 +82,25 @@ function town:draw()
     -- Kamera päälle
     self.gameCamera:attach()
 
+    -- Skaalauskerroin
+    local scale = 3
+
 
     -- Piirretään taustakerrokset ensin
     if self.gameMap.layers["Background"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Background"])
+        self.gameMap:drawLayer(self.gameMap.layers["Background"], scale, scale)
     end
 
     if self.gameMap.layers["Roads"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Roads"])
+        self.gameMap:drawLayer(self.gameMap.layers["Roads"], scale, scale)
     end
 
     if self.gameMap.layers["Houses"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Houses"])
+        self.gameMap:drawLayer(self.gameMap.layers["Houses"], scale, scale)
     end
 
     if self.gameMap.layers["Accessories"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Accessories"])
+        self.gameMap:drawLayer(self.gameMap.layers["Accessories"], scale, scale)
     end
 
     -- Piirretään pelaaja

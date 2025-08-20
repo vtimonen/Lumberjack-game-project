@@ -8,7 +8,7 @@ local player = {}
 -- world: windfield world, x, y: pelaajan aloituskoordinaatit
 -- ======================================================================
 function player:load(world, x, y)
-    self.speed = 150
+    self.speed = 100
 
     self.spriteSheet = love.graphics.newImage('Sprites/character_animations.png')
 
