@@ -1,7 +1,7 @@
 local sti = require 'Libraries.sti'
-local humpCamera = require 'Libraries.camera'
 local wf = require 'Libraries.windfield'
 local player = require 'Player.player'
+local myCamera = require 'Libraries.myCamera'
 
 local town = {}
 
@@ -17,19 +17,13 @@ function town:enter()
 
     -- Ladataan pelaaja worldiin
     self.player = player
-    self.player:load(self.world, 200, 200)
-
-    -- Ladataan pelaaja worldiin vain jos ei ole vielä ladattu
-    if not self.player.loaded then
-        self.player:load(self.world, 200, 200)
-        self.player.loaded = true
-    else
-        -- Pelaaja siirretään worldiin nykyisellä sijainnillaan
-        self.player:reAddToWorld(self.world)
-    end
+    self.player:load(self.world, 90, 80) -- x - 10 & y - 20
 
     -- Kamera
-    self.gameCamera = humpCamera(self.player.x, self.player.y)
+    local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+    local mapW = self.gameMap.width * self.gameMap.tilewidth
+    local mapH = self.gameMap.height * self.gameMap.tileheight
+    self.gameCamera = myCamera:new(self.player, mapW, mapH, w, h, 3)
 
 
     -- Mapin seinät collidereiksi
@@ -54,19 +48,8 @@ function town:update(dt)
     -- Päivitetään world
     self.world:update(dt)
 
-    -- Kamera seuraa pelaajaa
-    local w = love.graphics.getWidth()
-    local h = love.graphics.getHeight()
-    local mapW = self.gameMap.width * self.gameMap.tilewidth
-    local mapH = self.gameMap.height * self.gameMap.tileheight
-
-    self.gameCamera:lookAt(self.player.x, self.player.y)
-
-    -- Kamera lopettaa liikkumisen kun saavutetaan kartan reuna(t)
-    if self.gameCamera.x < w / 2 then self.gameCamera.x = w / 2 end
-    if self.gameCamera.y < h / 2 then self.gameCamera.y = h / 2 end
-    if self.gameCamera.x > (mapW - w / 2) then self.gameCamera.x = (mapW - w / 2) end
-    if self.gameCamera.y > (mapH - h / 2) then self.gameCamera.y = (mapH - h / 2) end
+    -- Päivitetään kamera
+    self.gameCamera:update()
 
     -- Esimerkki: siirtyminen house-statiin kun pelaaja menee kartan vasemmalta reunalta
     if self.player.x and self.player.x < 50 then
@@ -82,25 +65,21 @@ function town:draw()
     -- Kamera päälle
     self.gameCamera:attach()
 
-    -- Skaalauskerroin
-    local scale = 3
-
-
     -- Piirretään taustakerrokset ensin
     if self.gameMap.layers["Background"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Background"], scale, scale)
+        self.gameMap:drawLayer(self.gameMap.layers["Background"])
     end
 
     if self.gameMap.layers["Roads"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Roads"], scale, scale)
+        self.gameMap:drawLayer(self.gameMap.layers["Roads"])
     end
 
     if self.gameMap.layers["Houses"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Houses"], scale, scale)
+        self.gameMap:drawLayer(self.gameMap.layers["Houses"])
     end
 
     if self.gameMap.layers["Accessories"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Accessories"], scale, scale)
+        self.gameMap:drawLayer(self.gameMap.layers["Accessories"])
     end
 
     -- Piirretään pelaaja

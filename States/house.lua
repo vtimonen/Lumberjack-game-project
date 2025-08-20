@@ -1,7 +1,7 @@
 local sti = require 'Libraries.sti'
-local humpCamera = require 'Libraries.camera'
 local wf = require 'Libraries.windfield'
 local player = require 'Player.player'
+local myCamera = require 'Libraries.myCamera'
 
 local house = {}
 
@@ -17,11 +17,13 @@ function house:enter()
 
     -- Ladataan pelaaja worldiin (sama pelaaja kuin townissa)
     self.player = player
-    self.player:load(self.world, 400, 67) -- Esimerkki spawn-piste houseen
+    self.player:load(self.world, 390, 47) -- Esimerkki spawn-piste houseen
 
     -- Kamera
-    self.gameCamera = humpCamera(self.player.x, self.player.y)
-    self.gameCamera.scale = 4 -- nelinkertainen skaalaus
+    local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+    local mapW = self.gameMap.width * self.gameMap.tilewidth
+    local mapH = self.gameMap.height * self.gameMap.tileheight
+    self.gameCamera = myCamera:new(self.player, mapW, mapH, w, h, 3)
 
     -- Mapin seinät collidereiksi
     self.walls = {}
@@ -45,29 +47,12 @@ function house:update(dt)
     -- Päivitetään physics world
     self.world:update(dt)
 
-    -- Haetaan ruudun leveys ja korkeus pikseleinä
-    local w = love.graphics.getWidth()
-    local h = love.graphics.getHeight()
+    -- Päivitetään kamera
+    self.gameCamera:update()
 
     -- Kartan koko pikseleinä (tilejen määrä * tilejen koko)
     local mapW = self.gameMap.width * self.gameMap.tilewidth
     local mapH = self.gameMap.height * self.gameMap.tileheight
-
-    -- Zoom-kerroin, eli kuinka paljon kameraa on skaalattu
-    local camScale = 4
-
-    -- Lasketaan kuinka paljon näytettävä alue kattaa karttaa kameran mittakaavassa
-    local halfW = (w / camScale) / 2
-    local halfH = (h / camScale) / 2
-
-    -- Nyt rajoitetaan kamera niin, ettei se mene kartan ulkopuolelle:
-    -- math.max(halfW, ...) varmistaa, ettei kamera mene vasemman yläreunan yli
-    -- math.min(..., mapW - halfW) varmistaa, ettei kamera mene oikean alareunan yli
-    -- Sama logiikka y-koordinaatille
-    local camX = math.max(halfW, math.min(self.player.x, mapW - halfW))
-    local camY = math.max(halfH, math.min(self.player.y, mapH - halfH))
-
-    self.gameCamera:lookAt(camX, camY)
 
     -- Esimerkki: paluu town-statiin, jos pelaaja menee ovesta ulos
     if self.player.x > mapW - 50 then
