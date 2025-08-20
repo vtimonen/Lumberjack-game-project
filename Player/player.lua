@@ -51,25 +51,35 @@ function player:update(dt)
 
     -- Liikkuminen näppäimillä
     if love.keyboard.isDown("up") then
-        vy = -self.speed
+        vy = -1
         self.anim = self.animations.up
+        self.dir = "UP"
         isMoving = true
-    elseif love.keyboard.isDown("down") then
-        vy = self.speed
+    end
+
+    if love.keyboard.isDown("down") then
+        vy = 1
         self.anim = self.animations.down
+        self.dir = "DOWN"
         isMoving = true
-    elseif love.keyboard.isDown("left") then
-        vx = -self.speed
+    end
+
+    if love.keyboard.isDown("left") then
+        vx = -1
         self.anim = self.animations.left
+        self.dir = "LEFT"
         isMoving = true
-    elseif love.keyboard.isDown("right") then
-        vx = self.speed
+    end
+
+    if love.keyboard.isDown("right") then
+        vx = 1
         self.anim = self.animations.right
+        self.dir = "RIGHT"
         isMoving = true
     end
 
     -- Asetetaan liike collideriin
-    self.collider:setLinearVelocity(vx, vy)
+    self.collider:setLinearVelocity(vx * self.speed, vy * self.speed)
 
     -- Jos ei liiku → animaation ensimmäinen frame
     if not isMoving then

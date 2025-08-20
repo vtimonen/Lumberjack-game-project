@@ -108,6 +108,15 @@ function town:draw()
     -- Kamera pois
     self.gameCamera:detach()
 
+    -- Musta suorakulmio 60% opacityllä
+    love.graphics.setColor(0, 0, 0, 0.6)                 -- RGBA, 0.6 = 60% opacity
+    love.graphics.rectangle("fill", 5, 5, 150, 60, 4, 4) -- x, y, width, height, pyöristetyt kulmat
+
+    love.graphics.setColor(1, 1, 1, 1)
+
+    -- Esimerkki tekstistä ruudulla
+    love.graphics.print("TOWN", 10, 10)
+
     -- Näytetään debug-koordinaatit
     love.graphics.setColor(1, 1, 1) -- valkoinen väri (1.0 = 255)
     love.graphics.print(
@@ -116,8 +125,8 @@ function town:draw()
         10, 30
     )
 
-    -- Esimerkki tekstistä ruudulla
-    love.graphics.print("TOWN", 10, 10)
+    -- Player dir
+    love.graphics.print("Dir: " .. (self.player.dir or "DOWN"), 10, 50)
 end
 
 return town
