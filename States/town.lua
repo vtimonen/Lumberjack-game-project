@@ -9,7 +9,7 @@ local town = {}
 -- ======================================================================
 -- ENTER: kutsutaan kun state vaihtuu towniin
 -- ======================================================================
-function town:enter()
+function town:enter(spawn)
     -- Ladataan kartta
     self.gameMap = sti('Maps/town.lua')
 
@@ -23,7 +23,8 @@ function town:enter()
 
     -- Ladataan pelaaja worldiin
     self.player = player
-    self.player:load(self.world, 90, 80) -- x - 10 & y - 20
+    local x, y = 90, 80 -- default, x - 10 & y - 20
+    self.player:load(self.world, x, y)
 
     -- Kamera
     local w, h = love.graphics.getWidth(), love.graphics.getHeight()
@@ -58,7 +59,7 @@ function town:enter()
                         gameState.switch(require("States.house"))
                     elseif self.name == "CastleDoor" then
                         print("Entering the castle...")
-                        -- gameState.switch(require("States.castle"))
+                        gameState.switch(require("States.castle"))
                     end
                 end
             }
@@ -114,7 +115,7 @@ function town:draw()
     self.player:draw()
 
     -- Collider reunat
-    self.world:draw()
+    -- self.world:draw()
 
     -- Kamera pois
     self.gameCamera:detach()

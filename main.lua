@@ -7,6 +7,7 @@ player = require 'Player.player'
 -- States
 local town = require 'States.town'
 local house = require 'States.house'
+local castle = require 'States.castle'
 
 function love.load()
     -- Skaalaus, katso myöhemmin tarviiko

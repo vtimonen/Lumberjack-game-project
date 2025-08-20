@@ -4,14 +4,14 @@ local player = require 'Player.player'
 local myCamera = require 'Libraries.myCamera'
 local collisionClasses = require 'Libraries.collisionClasses'
 
-local house = {}
+local castle = {}
 
 -- ======================================================================
--- ENTER: kutsutaan kun state vaihtuu houseen
+-- ENTER: kutsutaan kun state vaihtuu castleen
 -- ======================================================================
-function house:enter()
+function castle:enter(spawn)
     -- Ladataan kartta
-    self.gameMap = sti('Maps/house.lua') -- Huom: eri kartta
+    self.gameMap = sti('Maps/castle.lua')
 
     -- Luodaan physics world
     self.world = wf.newWorld(0, 0)
@@ -23,7 +23,8 @@ function house:enter()
 
     -- Ladataan pelaaja worldiin
     self.player = player
-    self.player:load(self.world, 47, 4) -- x - 10 & y - 20
+    local x, y = 1319, 70 -- default, x - 10 & y - 20
+    self.player:load(self.world, x, y)
 
     -- Kamera
     local w, h = love.graphics.getWidth(), love.graphics.getHeight()
@@ -42,27 +43,29 @@ function house:enter()
     end
 
     self.doors = {}
-    if self.gameMap.layers["Door"] then
-        for _, obj in pairs(self.gameMap.layers["Door"].objects) do
+    if self.gameMap.layers["Doors"] then
+        for _, obj in pairs(self.gameMap.layers["Doors"].objects) do
             local door = self.world:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
             door:setType('static')
             door:setCollisionClass("Door")
 
-            -- Logiikkaobjekti ovelle
+            -- Luodaan logiikkaobjekti ovelle
             local doorObj = {
                 name = obj.name or "Door",
-                x = obj.x, -- tallennetaan oven x
-                y = obj.y, -- tallennetaan oven y
                 onInteract = function(self)
-                    if self.name == "UlkoOvi" then
-                        print("Going outside...")
-                        gameState.switch(require("States.town"))
+                    if self.name == "HouseDoor" then
+                        print("Going inside the house...")
+                        gameState.switch(require("States.house"))
+                    elseif self.name == "CastleDoor" then
+                        print("Entering the castle...")
+                        gameState.switch(require("States.castle"))
                     end
                 end
             }
 
             -- Liitetään logiikka collideriin
             door:setObject(doorObj)
+
             table.insert(self.doors, door)
         end
     end
@@ -72,7 +75,7 @@ end
 -- UPDATE: kutsutaan jokaisessa framessa
 -- dt: delta time
 -- ======================================================================
-function house:update(dt)
+function castle:update(dt)
     -- Päivitetään pelaajan logiikka
     self.player:update(dt)
 
@@ -86,29 +89,37 @@ end
 -- ======================================================================
 -- DRAW: piirtää worldin, kartan ja pelaajan
 -- ======================================================================
-function house:draw()
+function castle:draw()
     -- Kamera päälle
     self.gameCamera:attach()
 
-    -- Piirretään taustakerrokset
+    -- Piirretään taustakerrokset ensin
     if self.gameMap.layers["Background"] then
         self.gameMap:drawLayer(self.gameMap.layers["Background"])
     end
-    if self.gameMap.layers["Matto"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Matto"])
+
+    if self.gameMap.layers["Seinät"] then
+        self.gameMap:drawLayer(self.gameMap.layers["Seinät"])
     end
-    if self.gameMap.layers["Huonekalut"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Huonekalut"])
+
+    if self.gameMap.layers["Matot"] then
+        self.gameMap:drawLayer(self.gameMap.layers["Matot"])
     end
-    if self.gameMap.layers["Ovet"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Ovet"])
+
+    if self.gameMap.layers["Tavaroita"] then
+        self.gameMap:drawLayer(self.gameMap.layers["Tavaroita"])
     end
-    if self.gameMap.layers["Koristeet"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Koristeet"])
+
+    if self.gameMap.layers["Takatolpat"] then
+        self.gameMap:drawLayer(self.gameMap.layers["Takatolpat"])
     end
 
     -- Piirretään pelaaja
     self.player:draw()
+
+    if self.gameMap.layers["Etutolpat"] then
+        self.gameMap:drawLayer(self.gameMap.layers["Etutolpat"])
+    end
 
     -- Collider reunat
     -- self.world:draw()
@@ -122,8 +133,8 @@ function house:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
 
-    -- Teksti ruudulle esimerkkinä
-    love.graphics.print("HOUSE", 10, 10)
+    -- Esimerkki tekstistä ruudulla
+    love.graphics.print("CASTLE", 10, 10)
 
     -- Näytetään debug-koordinaatit
     love.graphics.setColor(1, 1, 1) -- valkoinen väri (1.0 = 255)
@@ -137,4 +148,4 @@ function house:draw()
     love.graphics.print("Dir: " .. (self.player.dir or "DOWN"), 10, 50)
 end
 
-return house
+return castle

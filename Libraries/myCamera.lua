@@ -27,9 +27,21 @@ function myCamera:update()
     local halfW = (self.screenWidth / self.scale) / 2
     local halfH = (self.screenHeight / self.scale) / 2
 
-    -- Seuraa pelaajaa mutta pysy kartan rajoissa
-    local camX = math.max(halfW, math.min(self.target.x, self.mapWidth - halfW))
-    local camY = math.max(halfH, math.min(self.target.y, self.mapHeight - halfH))
+    local camX, camY
+
+    -- Jos kartta on leveydeltään pienempi kuin ruutu → keskitetään
+    if self.mapWidth < self.screenWidth / self.scale then
+        camX = self.mapWidth / 2
+    else
+        camX = math.max(halfW, math.min(self.target.x, self.mapWidth - halfW))
+    end
+
+    -- Jos kartta on korkeudeltaan pienempi kuin ruutu → keskitetään
+    if self.mapHeight < self.screenHeight / self.scale then
+        camY = self.mapHeight / 2
+    else
+        camY = math.max(halfH, math.min(self.target.y, self.mapHeight - halfH))
+    end
 
     self.x, self.y = camX, camY
 end
