@@ -2,6 +2,7 @@ local sti = require 'Libraries.sti'
 local wf = require 'Libraries.windfield'
 local player = require 'Player.player'
 local myCamera = require 'Libraries.myCamera'
+local collisionClasses = require 'Libraries.collisionClasses'
 
 local house = {}
 
@@ -15,9 +16,14 @@ function house:enter()
     -- Luodaan physics world
     self.world = wf.newWorld(0, 0)
 
-    -- Ladataan pelaaja worldiin (sama pelaaja kuin townissa)
+    -- Ladataan collision classit
+    for className, _ in pairs(collisionClasses) do
+        self.world:addCollisionClass(className)
+    end
+
+    -- Ladataan pelaaja worldiin
     self.player = player
-    self.player:load(self.world, 390, 47) -- Esimerkki spawn-piste houseen
+    self.player:load(self.world, 47, 4) -- x - 10 & y - 20
 
     -- Kamera
     local w, h = love.graphics.getWidth(), love.graphics.getHeight()
@@ -32,6 +38,30 @@ function house:enter()
             local wall = self.world:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
             wall:setType('static')
             table.insert(self.walls, wall)
+        end
+    end
+
+    self.doors = {}
+    if self.gameMap.layers["Door"] then
+        for _, obj in pairs(self.gameMap.layers["Door"].objects) do
+            local door = self.world:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
+            door:setType('static')
+            door:setCollisionClass("Door")
+
+            -- Logiikkaobjekti ovelle
+            local doorObj = {
+                name = obj.name or "Door",
+                onInteract = function(self)
+                    if self.name == "UlkoOvi" then
+                        print("Going outside...")
+                        gameState.switch(require("States.town"))
+                    end
+                end
+            }
+
+            -- Liitetään logiikka collideriin
+            door:setObject(doorObj)
+            table.insert(self.doors, door)
         end
     end
 end
@@ -49,16 +79,6 @@ function house:update(dt)
 
     -- Päivitetään kamera
     self.gameCamera:update()
-
-    -- Kartan koko pikseleinä (tilejen määrä * tilejen koko)
-    local mapW = self.gameMap.width * self.gameMap.tilewidth
-    local mapH = self.gameMap.height * self.gameMap.tileheight
-
-    -- Esimerkki: paluu town-statiin, jos pelaaja menee ovesta ulos
-    if self.player.x > mapW - 50 then
-        local townState = require 'States.town'
-        gameState.switch(townState)
-    end
 end
 
 -- ======================================================================
@@ -70,21 +90,25 @@ function house:draw()
 
     -- Piirretään taustakerrokset
     if self.gameMap.layers["Background"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Background"], 0, 0, 10, 10)
+        self.gameMap:drawLayer(self.gameMap.layers["Background"])
     end
     if self.gameMap.layers["Matto"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Matto"], 0, 0, 10, 10)
+        self.gameMap:drawLayer(self.gameMap.layers["Matto"])
     end
-    if self.gameMap.layers["Jotain"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Jotain"], 0, 0, 10, 10)
+    if self.gameMap.layers["Huonekalut"] then
+        self.gameMap:drawLayer(self.gameMap.layers["Huonekalut"])
     end
-    if self.gameMap.layers["Decorations"] then
-        self.gameMap:drawLayer(self.gameMap.layers["Decorations"], 0, 0, 10, 10)
+    if self.gameMap.layers["Ovet"] then
+        self.gameMap:drawLayer(self.gameMap.layers["Ovet"])
+    end
+    if self.gameMap.layers["Koristeet"] then
+        self.gameMap:drawLayer(self.gameMap.layers["Koristeet"])
     end
 
     -- Piirretään pelaaja
     self.player:draw()
 
+    -- Collider reunat
     self.world:draw()
 
     -- Kamera pois

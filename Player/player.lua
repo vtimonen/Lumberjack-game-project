@@ -26,6 +26,9 @@ function player:load(world, x, y)
     -- Alustetaan pelaaja katsomaan alas
     self.anim = self.animations.down
 
+    -- Interact cooldown
+    self.interactCooldown = 0
+
     -- Asetetaan uusi world
     self.world = world
 
@@ -34,8 +37,13 @@ function player:load(world, x, y)
         self.collider:destroy()
     end
 
+
+    -- Näillä voi muuttaa colliderin paikkaa
+    self.colliderOffsetX = 0
+    self.colliderOffsetY = 6
+
     -- Luodaan uusi collider
-    self.collider = self.world:newBSGRectangleCollider(x, y, 20, 40, 7)
+    self.collider = self.world:newBSGRectangleCollider(x + self.colliderOffsetX, y + self.colliderOffsetY, 20, 25, 1)
     self.collider:setFixedRotation(true)
     self.collider:setObject(self)
 end
@@ -87,11 +95,28 @@ function player:update(dt)
     end
 
     -- Päivitetään pelaajan koordinaatit colliderin mukaan
-    self.x = self.collider:getX()
-    self.y = self.collider:getY()
+    self.x = self.collider:getX() - self.colliderOffsetX
+    self.y = self.collider:getY() - self.colliderOffsetY
 
     -- Päivitetään animaatio
     self.anim:update(dt)
+
+    -- Interact
+    if love.keyboard.isDown("space") and self.interactCooldown <= 0 then
+        self:interact()
+        self.interactCooldown = 0.3
+    end
+
+    if self.interactCooldown > 0 then
+        self.interactCooldown = self.interactCooldown - dt
+    end
+
+    if self.interactArea then
+        self.interactArea.timer = self.interactArea.timer - dt
+        if self.interactArea.timer <= 0 then
+            self.interactArea = nil
+        end
+    end
 end
 
 -- ======================================================================
@@ -106,6 +131,33 @@ end
 -- Lisää pelaajan physics worldiin nykyisellä sijainnilla ilman että tilat resetoituu
 function player:reAddToWorld(newWorld, x, y)
     self:load(newWorld, x or self.x, y or self.y)
+end
+
+function player:interact()
+    local r = 30
+    local x, y = self.x, self.y
+
+    -- Tarkistetaan suunta
+    if self.dir == "UP" then
+        y = y - r
+    end
+    if self.dir == "DOWN" then
+        y = y + r
+    end
+    if self.dir == "LEFT" then
+        x = x - r
+    end
+    if self.dir == "RIGHT" then
+        x = x + r
+    end
+
+    local hits = self.world:queryCircleArea(x, y, r, { "Door" })
+
+    for _, collider in ipairs(hits) do
+        if collider.object.onInteract then
+            collider.object:onInteract()
+        end
+    end
 end
 
 return player

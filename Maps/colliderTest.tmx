@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="40" height="40" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="24">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="40" height="40" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="25">
  <editorsettings>
   <export target="colliderTest.lua" format="lua"/>
  </editorsettings>
@@ -196,5 +196,8 @@
   <object id="20" x="136" y="340" width="64" height="56"/>
   <object id="22" x="136" y="468" width="64" height="56"/>
   <object id="23" x="280" y="468" width="64" height="56"/>
+ </objectgroup>
+ <objectgroup id="6" name="Test">
+  <object id="24" x="624" y="208" width="16" height="48"/>
  </objectgroup>
 </map>

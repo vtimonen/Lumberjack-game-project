@@ -2,6 +2,7 @@ local sti = require 'Libraries.sti'
 local wf = require 'Libraries.windfield'
 local player = require 'Player.player'
 local myCamera = require 'Libraries.myCamera'
+local collisionClasses = require 'Libraries.collisionClasses'
 
 local town = {}
 
@@ -14,6 +15,11 @@ function town:enter()
 
     -- Luodaan physics world
     self.world = wf.newWorld(0, 0)
+
+    -- Ladataan collision classit
+    for className, _ in pairs(collisionClasses) do
+        self.world:addCollisionClass(className)
+    end
 
     -- Ladataan pelaaja worldiin
     self.player = player
@@ -35,6 +41,34 @@ function town:enter()
             table.insert(self.walls, wall)
         end
     end
+
+    self.doors = {}
+    if self.gameMap.layers["Doors"] then
+        for _, obj in pairs(self.gameMap.layers["Doors"].objects) do
+            local door = self.world:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
+            door:setType('static')
+            door:setCollisionClass("Door")
+
+            -- Luodaan logiikkaobjekti ovelle
+            local doorObj = {
+                name = obj.name or "Door",
+                onInteract = function(self)
+                    if self.name == "HouseDoor" then
+                        print("Going inside the house...")
+                        gameState.switch(require("States.house"))
+                    elseif self.name == "CastleDoor" then
+                        print("Entering the castle...")
+                        -- gameState.switch(require("States.castle"))
+                    end
+                end
+            }
+
+            -- Liitetään logiikka collideriin
+            door:setObject(doorObj)
+
+            table.insert(self.doors, door)
+        end
+    end
 end
 
 -- ======================================================================
@@ -45,17 +79,11 @@ function town:update(dt)
     -- Päivitetään pelaajan logiikka
     self.player:update(dt)
 
-    -- Päivitetään world
+    -- Päivitetään physics world
     self.world:update(dt)
 
     -- Päivitetään kamera
     self.gameCamera:update()
-
-    -- Esimerkki: siirtyminen house-statiin kun pelaaja menee kartan vasemmalta reunalta
-    if self.player.x and self.player.x < 50 then
-        local houseState = require 'States.house'
-        gameState.switch(houseState)
-    end
 end
 
 -- ======================================================================
@@ -85,6 +113,7 @@ function town:draw()
     -- Piirretään pelaaja
     self.player:draw()
 
+    -- Collider reunat
     self.world:draw()
 
     -- Kamera pois
