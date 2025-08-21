@@ -344,7 +344,7 @@ return {
       type = "objectgroup",
       draworder = "topdown",
       id = 7,
-      name = "Door",
+      name = "Doors",
       class = "",
       visible = true,
       opacity = 1,
@@ -356,7 +356,7 @@ return {
       objects = {
         {
           id = 12,
-          name = "UlkoOvi",
+          name = "ulkoOvi",
           type = "",
           shape = "rectangle",
           x = 48,

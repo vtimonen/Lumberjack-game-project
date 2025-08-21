@@ -3,6 +3,7 @@ local wf = require 'Libraries.windfield'
 local player = require 'Player.player'
 local myCamera = require 'Libraries.myCamera'
 local collisionClasses = require 'Libraries.collisionClasses'
+local Door = require 'Objects.door'
 
 local house = {}
 
@@ -11,7 +12,7 @@ local house = {}
 -- ======================================================================
 function house:enter()
     -- Ladataan kartta
-    self.gameMap = sti('Maps/house.lua') -- Huom: eri kartta
+    self.gameMap = sti('Maps/house.lua')
 
     -- Luodaan physics world
     self.world = wf.newWorld(0, 0)
@@ -41,29 +42,12 @@ function house:enter()
         end
     end
 
+    -- Ladataan ovet
     self.doors = {}
-    if self.gameMap.layers["Door"] then
-        for _, obj in pairs(self.gameMap.layers["Door"].objects) do
-            local door = self.world:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
-            door:setType('static')
-            door:setCollisionClass("Door")
-
-            -- Logiikkaobjekti ovelle
-            local doorObj = {
-                name = obj.name or "Door",
-                x = obj.x, -- tallennetaan oven x
-                y = obj.y, -- tallennetaan oven y
-                onInteract = function(self)
-                    if self.name == "UlkoOvi" then
-                        print("Going outside...")
-                        gameState.switch(require("States.town"))
-                    end
-                end
-            }
-
-            -- Liitetään logiikka collideriin
-            door:setObject(doorObj)
-            table.insert(self.doors, door)
+    if self.gameMap.layers["Doors"] then
+        for _, obj in pairs(self.gameMap.layers["Doors"].objects) do
+            local doorInstance = Door:new(self.world, obj.x, obj.y, obj.width, obj.height, obj.name)
+            table.insert(self.doors, doorInstance)
         end
     end
 end
@@ -81,6 +65,11 @@ function house:update(dt)
 
     -- Päivitetään kamera
     self.gameCamera:update()
+
+    -- door:update on tyhjä
+    for _, door in pairs(self.doors) do
+        door:update(dt)
+    end
 end
 
 -- ======================================================================
@@ -109,6 +98,11 @@ function house:draw()
 
     -- Piirretään pelaaja
     self.player:draw()
+
+    -- Piirretään ovet
+    for _, door in pairs(self.doors) do
+        door:draw()
+    end
 
     -- Collider reunat
     -- self.world:draw()

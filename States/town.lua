@@ -10,7 +10,7 @@ local town = {}
 -- ======================================================================
 -- ENTER: kutsutaan kun state vaihtuu towniin
 -- ======================================================================
-function town:enter(spawn)
+function town:enter()
     -- Ladataan kartta
     self.gameMap = sti('Maps/town.lua')
 
@@ -105,7 +105,7 @@ function town:draw()
     self.player:draw()
 
 
-    -- ovien piirto
+    -- Piirretään ovet
     for _, door in pairs(self.doors) do
         door:draw()
     end

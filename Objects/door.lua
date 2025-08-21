@@ -33,6 +33,9 @@ function Door:onInteract()
     elseif self.name == "CastleDoor" then
         print("Entering the castle...")
         gameState.switch(require("States.castle"))
+    elseif self.name == "ulkoOvi" then
+        print("Going out of the house...")
+        gameState.switch(require("States.town"))
     else
         print("This door does nothing.")
     end
