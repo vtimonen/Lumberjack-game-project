@@ -9,8 +9,8 @@ return {
   height = 10,
   tilewidth = 16,
   tileheight = 16,
-  nextlayerid = 8,
-  nextobjectid = 13,
+  nextlayerid = 9,
+  nextobjectid = 15,
   properties = {},
   tilesets = {
     {
@@ -363,6 +363,38 @@ return {
           y = 8,
           width = 16,
           height = 8,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["targetSpawn"] = "fromHouse",
+            ["targetState"] = "town"
+          }
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 8,
+      name = "Spawns",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 13,
+          name = "fromTown",
+          type = "",
+          shape = "rectangle",
+          x = 48,
+          y = 32,
+          width = 16,
+          height = 16,
           rotation = 0,
           visible = true,
           properties = {}

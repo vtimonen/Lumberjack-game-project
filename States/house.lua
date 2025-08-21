@@ -10,7 +10,7 @@ local house = {}
 -- ======================================================================
 -- ENTER: kutsutaan kun state vaihtuu houseen
 -- ======================================================================
-function house:enter()
+function house:enter(spawnPoint)
     -- Ladataan kartta
     self.gameMap = sti('Maps/house.lua')
 
@@ -22,9 +22,26 @@ function house:enter()
         self.world:addCollisionClass(className)
     end
 
-    -- Ladataan pelaaja worldiin
+    -- Ladataan pelaaja
     self.player = player
-    self.player:load(self.world, 47, 4) -- x - 10 & y - 20
+
+    local spawnName = type(spawnPoint)
+    print("Entering house, requested spawn:", spawnName)
+
+
+    local spawnX, spawnY = 47, 4 -- default
+
+    -- Etsitään spawnPoint
+    if self.gameMap.layers["Spawns"] then
+        for _, obj in pairs(self.gameMap.layers["Spawns"].objects) do
+            print("Spawn object:", obj.name, obj.x, obj.y)
+            spawnX, spawnY = obj.x, obj.y
+        end
+    end
+
+    print("Player spawn set to:", spawnX, spawnY)
+    self.player:load(self.world, spawnX, spawnY)
+
 
     -- Kamera
     local w, h = love.graphics.getWidth(), love.graphics.getHeight()
@@ -46,7 +63,7 @@ function house:enter()
     self.doors = {}
     if self.gameMap.layers["Doors"] then
         for _, obj in pairs(self.gameMap.layers["Doors"].objects) do
-            local doorInstance = Door:new(self.world, obj.x, obj.y, obj.width, obj.height, obj.name)
+            local doorInstance = Door:new(self.world, obj.x, obj.y, obj.width, obj.height, obj.name, obj.properties)
             table.insert(self.doors, doorInstance)
         end
     end

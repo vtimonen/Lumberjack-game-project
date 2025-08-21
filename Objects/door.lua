@@ -7,10 +7,20 @@ Door.__index = Door
 -- x, y: sijainti
 -- width, height: koko
 -- name: oven nimi (tämä määrittää interaktion)
+-- props: lisäominaisuudet Tiledistä (targetState, targetSpawn)
 -- ======================================================================
-function Door:new(world, x, y, width, height, name)
+function Door:new(world, x, y, width, height, name, props)
     local door = setmetatable({}, Door)
     door.name = name or "Door"
+    door.props = props or {}
+
+    -- Tallennetaan mikä state ja mikä spawnpoint
+    door.targetState = door.props.targetState
+    door.targetSpawn = door.props.targetSpawn
+
+    -- Tulostus kaikista kartan ovista jne.
+    print("Door created:", door.name, "targetState:", door.targetState, "targetSpawn:", door.targetSpawn,
+        type(door.targetSpawn))
 
     -- luodaan collider physics worldiin
     door.collider = world:newRectangleCollider(x, y, width, height)
@@ -27,15 +37,9 @@ end
 -- Pelaaja käyttää ovea
 -- ======================================================================
 function Door:onInteract()
-    if self.name == "HouseDoor" then
-        print("Going inside the house...")
-        gameState.switch(require("States.house"))
-    elseif self.name == "CastleDoor" then
-        print("Entering the castle...")
-        gameState.switch(require("States.castle"))
-    elseif self.name == "ulkoOvi" then
-        print("Going out of the house...")
-        gameState.switch(require("States.town"))
+    if self.targetState and self.targetSpawn then
+        print("Going to state: " .. self.targetState .. " at spawn: " .. self.targetSpawn)
+        gameState.switch(require("States." .. self.targetState), self.targetSpawn)
     else
         print("This door does nothing.")
     end

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="23">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="25">
  <editorsettings>
   <export target="town.lua" format="lua"/>
  </editorsettings>
@@ -189,7 +189,15 @@
   <object id="22" x="416" y="44" width="48" height="68"/>
  </objectgroup>
  <objectgroup id="6" name="Doors">
-  <object id="17" name="HouseDoor" x="416" y="284" width="16" height="16"/>
+  <object id="17" name="HouseDoor" x="416" y="284" width="16" height="16">
+   <properties>
+    <property name="targetSpawn" value="fromTown"/>
+    <property name="targetState" value="house"/>
+   </properties>
+  </object>
   <object id="18" name="CastleDoor" x="408" y="80" width="8" height="16"/>
+ </objectgroup>
+ <objectgroup id="7" name="Spawns">
+  <object id="24" name="fromHouse" x="416" y="316" width="16" height="16"/>
  </objectgroup>
 </map>
