@@ -40,10 +40,10 @@ function player:load(world, x, y)
 
     -- Näillä voi muuttaa colliderin paikkaa
     self.colliderOffsetX = 0
-    self.colliderOffsetY = 6
+    self.colliderOffsetY = 3
 
     -- Luodaan uusi collider
-    self.collider = self.world:newBSGRectangleCollider(x + self.colliderOffsetX, y + self.colliderOffsetY, 20, 25, 1)
+    self.collider = self.world:newBSGRectangleCollider(x + self.colliderOffsetX, y + self.colliderOffsetY, 15, 17, 1)
     self.collider:setFixedRotation(true)
     self.collider:setObject(self)
 end
@@ -125,7 +125,7 @@ end
 -- 2x skaalaus, keskitetty origin (7.5, 11.5)
 -- ======================================================================
 function player:draw()
-    self.anim:draw(self.spriteSheet, self.x, self.y, nil, 2, nil, 7.5, 11.5)
+    self.anim:draw(self.spriteSheet, self.x, self.y, nil, 1.5, nil, 7.5, 11.5)
 end
 
 -- Lisää pelaajan physics worldiin nykyisellä sijainnilla ilman että tilat resetoituu

@@ -3,6 +3,7 @@ local wf = require 'Libraries.windfield'
 local player = require 'Player.player'
 local myCamera = require 'Libraries.myCamera'
 local collisionClasses = require 'Libraries.collisionClasses'
+local Door = require 'Objects.door'
 
 local town = {}
 
@@ -43,31 +44,12 @@ function town:enter(spawn)
         end
     end
 
+    -- Ladataan ovet
     self.doors = {}
     if self.gameMap.layers["Doors"] then
         for _, obj in pairs(self.gameMap.layers["Doors"].objects) do
-            local door = self.world:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
-            door:setType('static')
-            door:setCollisionClass("Door")
-
-            -- Luodaan logiikkaobjekti ovelle
-            local doorObj = {
-                name = obj.name or "Door",
-                onInteract = function(self)
-                    if self.name == "HouseDoor" then
-                        print("Going inside the house...")
-                        gameState.switch(require("States.house"))
-                    elseif self.name == "CastleDoor" then
-                        print("Entering the castle...")
-                        gameState.switch(require("States.castle"))
-                    end
-                end
-            }
-
-            -- Liitetään logiikka collideriin
-            door:setObject(doorObj)
-
-            table.insert(self.doors, door)
+            local doorInstance = Door:new(self.world, obj.x, obj.y, obj.width, obj.height, obj.name)
+            table.insert(self.doors, doorInstance)
         end
     end
 end
@@ -83,8 +65,16 @@ function town:update(dt)
     -- Päivitetään physics world
     self.world:update(dt)
 
+    -- Tämä mahdollistaa Tiledissä tehdyt animaatiot
+    self.gameMap:update(dt)
+
     -- Päivitetään kamera
     self.gameCamera:update()
+
+    -- door:update on tyhjä
+    for _, door in pairs(self.doors) do
+        door:update(dt)
+    end
 end
 
 -- ======================================================================
@@ -113,6 +103,12 @@ function town:draw()
 
     -- Piirretään pelaaja
     self.player:draw()
+
+
+    -- ovien piirto
+    for _, door in pairs(self.doors) do
+        door:draw()
+    end
 
     -- Collider reunat
     -- self.world:draw()
